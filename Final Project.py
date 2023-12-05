@@ -40,6 +40,7 @@ def extract_features(data):
     return df
 
 #train decision tree 
+# error because of lack of data here?
 def train_random_forest(frames):
     # Use pandas iloc fn to extract the first 150 columns as features.
     # Careful about how the indexing works (cols start from 0)
@@ -88,5 +89,11 @@ for filename in filenames:
    data, sample_rate = librosa.load(filename)
    feature_df = extract_features(data)
    sound_df = pd.DataFrame([sound])
+   combined_df = pd.concat([feature_df, sound_df], axis = 1)
+   frames = pd.concat([combined_df, frames])
 
-   
+# 158 because i added another feature 
+col_names = [f'feat_{i}' for i in range (157)] + ['label']
+frames.columns = col_names
+Sound_rf_model, sound_rf_cm, acc = train_random_forest(frames)
+X = 5
