@@ -6,40 +6,81 @@ import sys
 import os
 import librosa 
 
-# calculate magnitutde functon
-# this might be different now 
-def calc_magnitude(data):
-    data['audio_mag'] = np.sqrt(data['x']**2 + data['y']**2 + data['z']**2)
-    data['audio_mag'] = data['audio_mag'] - data['audio_mag'].mean()
+from sklearn import tree, metrics
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+from scipy.signal import butter, filtfilt, find_peaks
+from sklearn.tree import DecisionTreeClassifier,export_graphviz
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matri
 
-    return data 
-
-# remove noise 
-
-# add features 
+# using functions from the Assignment 4 code 
 
 # extract features 
+def extract_features(data):
+    zero_crossings = librosa.feature.zero_crossing_rate(y=data)
+    mfcc = librosa.feature.mfcc(y=data, sr=sample_rate)
+    rootms = librosa.feature.rms(y=data)
+    mel = librosa.feature.melspectrogram(y=data, sr=sample_rate)
+    # might need more parameters?
+    spectral_contrast = librosa.feature.spectral_contrast(y=data)
+    # Average across columns (axis=1)
+    zcr_avg = np.mean(zero_crossings, axis=1)
+    # not sure if I need the mfcc part 
+    mfcc_avg = np.mean(mfcc, axis=1)
+    rms_avg = np.mean(rootms, axis=1) 
+    mel_avg = np.mean(mel, axis=1)
+    spc_avg = np.mean(spectral_contrast, axis=1)
+ 
+    # Concatenate into single row 
+    features = np.concatenate([zcr_avg, mfcc_avg, rms_avg, mel_avg, spc_avg])
+    # Convert to dataframe and transpose it so that the shape is 1x150
+    df = pd.DataFrame(features).T
+    return df
 
 #train decision tree 
+def train_random_forest(frames):
+    # Use pandas iloc fn to extract the first 150 columns as features.
+    # Careful about how the indexing works (cols start from 0)
+    X = frames.iloc[: , 0:150]
+    # Use pandas iloc function to extract the 151st column as the prediction target.
+    # Again, careful about how indexing works (col numbers start from 0)
+    y = frames.iloc[: , 150]
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    Emotion_rf = RandomForestClassifier()
+    Emotion_rf_model = Emotion_rf.fit(X_train, y_train)
+    Emotion_rf_pred = Emotion_rf_model.predict(X_test)
+    print(classification_report(y_test, Emotion_rf_pred))
+    # Evaluate on test set
+    acc = Emotion_rf_model.score(X_test, y_test)
+    Emotion_rf_cm = confusion_matrix(y_test, Emotion_rf_pred)
+    print(Emotion_rf_cm)
+    return Emotion_rf_model, Emotion_rf_cm, acc
 
-#create a classifier
-    # not positive that we do this 
 
 
-# possibly combine all data to csv?
-def all_data_to_combined_csv():
-    path = "AudioFiles/**/*.csv"
-    list_files=glob.glob(path, recursive=True)
-    all_data = pd.DataFrame()
-    for file in list_files:
-        # check this 
-        activity = file.split('\\')[1]
-        activity = activity_file = os.path.basename(file)
-        data = pd.read_csv(file)
-        data = calc_magnitude(data)
-        data = remove_noise(data, 100)
-        data = extract_features(data, 10, 100, activity)
-        all_data = pd.concat([all_data, data])
+# # possibly combine all data to csv?
+# def all_data_to_combined_csv():
+#     path = "AudioFiles/**/*.csv"
+#     list_files=glob.glob(path, recursive=True)
+#     all_data = pd.DataFrame()
+#     for file in list_files:
+#         # check this 
+#         activity = file.split('\\')[1]
+#         activity = activity_file = os.path.basename(file)
+#         data = pd.read_csv(file)
+#         data = calc_magnitude(data)
+#         data = remove_noise(data, 100)
+#         data = extract_features(data, 10, 100, activity)
+#         all_data = pd.concat([all_data, data])
 
-    all_data.to_csv("all_data.csv")
+#     all_data.to_csv("all_data.csv")
 
+
+# code to call it 
+filenames = glob.glob("AudioFiles/*/*.wav")
+frames = pd.DataFrame()
+for filename in filenames:
+   x = 5
