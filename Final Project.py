@@ -13,7 +13,7 @@ from scipy.signal import butter, filtfilt, find_peaks
 from sklearn.tree import DecisionTreeClassifier,export_graphviz
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matri
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 # using functions from the Assignment 4 code 
 
@@ -83,4 +83,10 @@ def train_random_forest(frames):
 filenames = glob.glob("AudioFiles/*/*.wav")
 frames = pd.DataFrame()
 for filename in filenames:
-   x = 5
+   sound = filename.split('\\')[1]
+   # might want to input different parameters 
+   data, sample_rate = librosa.load(filename)
+   feature_df = extract_features(data)
+   sound_df = pd.DataFrame([sound])
+
+   
