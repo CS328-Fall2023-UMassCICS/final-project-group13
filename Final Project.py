@@ -5,6 +5,8 @@ import glob
 import sys
 import os
 import librosa 
+import matplotlib
+import matplotlib.pyplot as plt
 
 from sklearn import tree, metrics
 from sklearn.model_selection import train_test_split, cross_val_score
@@ -87,6 +89,8 @@ for filename in filenames:
    sound = filename.split('\\')[1]
    # might want to input different parameters 
    data, sample_rate = librosa.load(filename)
+   # show the graph
+   librosa.display.waveshow(data)
    feature_df = extract_features(data)
    sound_df = pd.DataFrame([sound])
    combined_df = pd.concat([feature_df, sound_df], axis = 1)
