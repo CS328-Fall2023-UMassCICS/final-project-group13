@@ -7,6 +7,7 @@ import os
 import librosa 
 import matplotlib
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder
 #import librosa.display
 
 from sklearn import tree, metrics
@@ -52,6 +53,9 @@ def train_random_forest(frames):
     # Again, careful about how indexing works (col numbers start from 0)
     y = frames.iloc[: , 156]
     # Split data
+    label_encoder = LabelEncoder()
+    y = label_encoder.fit_transform(y)
+    
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
     Emotion_rf = RandomForestClassifier()
     Emotion_rf_model = Emotion_rf.fit(X_train, y_train)
