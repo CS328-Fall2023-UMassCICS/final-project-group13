@@ -7,7 +7,8 @@ import os
 import librosa 
 import matplotlib
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder
+from sklearn import preprocessing
+from sklearn import utils
 #import librosa.display
 
 from sklearn import tree, metrics
