@@ -92,6 +92,7 @@ for filename in filenames:
    data, sample_rate = librosa.load(filename)
    # show the graph
    #fig, ax = plt.subplots(nrows =3, sharex = True)
+   # figure out how to get plots to be the same scale 
    librosa.display.waveshow(data, sr=sample_rate, color="blue")
    feature_df = extract_features(data)
    sound_df = pd.DataFrame([sound])
