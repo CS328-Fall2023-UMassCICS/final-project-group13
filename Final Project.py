@@ -7,7 +7,8 @@ import os
 import librosa 
 import matplotlib
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder
+from sklearn import preprocessing
+from sklearn import utils
 #import librosa.display
 
 from sklearn import tree, metrics
@@ -54,12 +55,23 @@ def train_random_forest(frames):
     y = frames.iloc[: , 156]
     # Split data
     label_encoder = LabelEncoder()
+    
+    print("Unique class labels before encoding:", y.unique())
+          
     y = label_encoder.fit_transform(y)
     
+    print("Unique class labels after encoding:", np.unique(y))
+     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
     Emotion_rf = RandomForestClassifier()
     Emotion_rf_model = Emotion_rf.fit(X_train, y_train)
     Emotion_rf_pred = Emotion_rf_model.predict(X_test)
+    
+    print("Unique class labels before decoding:", np.unique(y))
+    decoded_labels = label_encoder.inverse_transform(Emotion_rf_pred)
+    print("Unique class labels after decoding:", np.unique(decoded_labels))
+    
+    
     print(classification_report(y_test, Emotion_rf_pred))
     # Evaluate on test set
     acc = Emotion_rf_model.score(X_test, y_test)
