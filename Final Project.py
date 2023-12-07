@@ -88,23 +88,15 @@ filenames = glob.glob("AudioFiles/*/*.wav")
 frames = pd.DataFrame()
 # change offset and duration for loading the file to split into 10 second intervals 
 for filename in filenames:
-   # start with these values 
-   offset = 3.0
-   duration = 10.0
    sound = filename.split('\\')[1]
-   # for now just loop through
-   # this splits the file into 10 second increments 
-   for x in range(10):
-        data, sample_rate = librosa.load(filename, duration = duration, offset = offset)
-        #data, sample_rate = librosa.load(filename)
-        # show the graph
-        #fig, ax = plt.subplots(nrows =3, sharex = True)
-        librosa.display.waveshow(data, sr=sample_rate, color="blue")
-        feature_df = extract_features(data)
-        sound_df = pd.DataFrame([sound])
-        combined_df = pd.concat([feature_df, sound_df], axis = 1)
-        frames = pd.concat([combined_df, frames])
-        offset = duration + offset
+   data, sample_rate = librosa.load(filename)
+   # show the graph
+   #fig, ax = plt.subplots(nrows =3, sharex = True)
+   librosa.display.waveshow(data, sr=sample_rate, color="blue")
+   feature_df = extract_features(data)
+   sound_df = pd.DataFrame([sound])
+   combined_df = pd.concat([feature_df, sound_df], axis = 1)
+   frames = pd.concat([combined_df, frames])
 
 # 158 because i added another feature 
 col_names = [f'feat_{i}' for i in range (157)] + ['label']
