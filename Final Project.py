@@ -47,10 +47,10 @@ def extract_features(data):
 def train_random_forest(frames):
     # Use pandas iloc fn to extract the first 150 columns as features.
     # Careful about how the indexing works (cols start from 0)
-    X = frames.iloc[: , 0:150]
+    X = frames.iloc[: , 0:156]
     # Use pandas iloc function to extract the 151st column as the prediction target.
     # Again, careful about how indexing works (col numbers start from 0)
-    y = frames.iloc[: , 150]
+    y = frames.iloc[: , 156]
     # Split data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
     Emotion_rf = RandomForestClassifier()
