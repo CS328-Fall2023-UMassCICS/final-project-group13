@@ -49,20 +49,16 @@ def extract_features(data):
 def train_random_forest(frames):
     # Use pandas iloc fn to extract the first 150 columns as features.
     # Careful about how the indexing works (cols start from 0)
-    X = frames.iloc[: , 0:156]
-    # Use pandas iloc function to extract the 151st column as the prediction target.
-    # Again, careful about how indexing works (col numbers start from 0)
-    # this needs to be the labels?
+    X = frames.iloc[: , 0:157]
+
+    # Use pandas iloc function to extract the 157th column as the prediction target.
     y = frames.iloc[: , 157]
-    # Split data
-    label_encoder = LabelEncoder()
-    y = label_encoder.fit_transform(y)
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
     Emotion_rf = RandomForestClassifier()
     Emotion_rf_model = Emotion_rf.fit(X_train, y_train)
     Emotion_rf_pred = Emotion_rf_model.predict(X_test)
-    print(classification_report(y_test, Emotion_rf_pred))
+    print(classification_report(y_test, Emotion_rf_pred, target_names=['Whispering', 'Talking', 'Not Speaking']))
     # Evaluate on test set
     acc = Emotion_rf_model.score(X_test, y_test)
     Emotion_rf_cm = confusion_matrix(y_test, Emotion_rf_pred)
@@ -70,34 +66,13 @@ def train_random_forest(frames):
     return Emotion_rf_model, Emotion_rf_cm, acc
 
 
-
-# # possibly combine all data to csv?
-# def all_data_to_combined_csv():
-#     path = "AudioFiles/**/*.csv"
-#     list_files=glob.glob(path, recursive=True)
-#     all_data = pd.DataFrame()
-#     for file in list_files:
-#         # check this 
-#         activity = file.split('\\')[1]
-#         activity = activity_file = os.path.basename(file)
-#         data = pd.read_csv(file)
-#         data = calc_magnitude(data)
-#         data = remove_noise(data, 100)
-#         data = extract_features(data, 10, 100, activity)
-#         all_data = pd.concat([all_data, data])
-
-#     all_data.to_csv("all_data.csv")
-
-
 # code to call it 
 filenames = glob.glob("AudioFiles/*/*.wav")
 frames = pd.DataFrame()
-# change offset and duration for loading the file to split into 10 second intervals 
 for filename in filenames:
    sound = filename.split('\\')[1]
    data, sample_rate = librosa.load(filename)
    # show the graph
-   #fig, ax = plt.subplots(nrows =3, sharex = True)
    # figure out how to get plots to be the same scale 
    librosa.display.waveshow(data, sr=sample_rate, color="blue")
    feature_df = extract_features(data)
