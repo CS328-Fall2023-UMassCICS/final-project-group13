@@ -74,7 +74,15 @@ for filename in filenames:
    data, sample_rate = librosa.load(filename)
    # show the graph
    # figure out how to get plots to be the same scale 
+   #fig = plt.figure(figsize=(10, 0.5))
+   #ax1 = fig.subplots() 
+   y_axis_limits = [-0.5, 0.5]
+   plt.figure(figsize=(10, 4))
+
    librosa.display.waveshow(data, sr=sample_rate, color="blue")
+
+   plt.ylim(y_axis_limits)
+   # add labels 
    feature_df = extract_features(data)
    sound_df = pd.DataFrame([sound])
    combined_df = pd.concat([feature_df, sound_df], axis = 1)
@@ -84,4 +92,6 @@ for filename in filenames:
 col_names = [f'feat_{i}' for i in range (157)] + ['label']
 frames.columns = col_names
 Sound_rf_model, sound_rf_cm, acc = train_random_forest(frames)
-X = 5
+display = ConfusionMatrixDisplay(sound_rf_cm)
+display.plot()
+#plt.show()
