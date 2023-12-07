@@ -51,7 +51,8 @@ def train_random_forest(frames):
     X = frames.iloc[: , 0:156]
     # Use pandas iloc function to extract the 151st column as the prediction target.
     # Again, careful about how indexing works (col numbers start from 0)
-    y = frames.iloc[: , 156]
+    # this needs to be the labels?
+    y = frames.iloc[: , 157]
     # Split data
     label_encoder = LabelEncoder()
     y = label_encoder.fit_transform(y)
