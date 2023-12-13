@@ -95,9 +95,9 @@ for filename in filenames:
    y_axis_limits = [-0.5, 0.5]
    # code to display the visuals 
 
-    #plt.figure(figsize=(10, 4))
-    #librosa.display.waveshow(data, sr=sample_rate, color="blue")
-    #plt.ylim(y_axis_limits)
+   #plt.figure(figsize=(10, 4))
+   #librosa.display.waveshow(data, sr=sample_rate, color="blue")
+   #plt.ylim(y_axis_limits)
 
    feature_df = extract_features(data)
    sound_df = pd.DataFrame([sound])
@@ -107,4 +107,4 @@ for filename in filenames:
 Sound_rf_model, sound_rf_cm, acc = train_random_forest(frames)
 display = ConfusionMatrixDisplay(sound_rf_cm)
 display.plot()
-#plt.show()
+plt.show()
