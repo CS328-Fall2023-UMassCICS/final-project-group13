@@ -42,6 +42,22 @@ def extract_features(data):
     features = np.concatenate([zcr_avg, mfcc_avg, rms_avg, mel_avg, spc_avg])
     # Convert to dataframe and transpose it so that the shape is 1x150
     df = pd.DataFrame(features).T
+    # create an array of the feature names 
+    _, df_size = df.shape
+    column_names = []
+    for x in range(df_size):
+        if (x == 0):
+            column_names.append("Zero Crossings")
+        elif (x > 0 and x < 21):
+            column_names.append("mfcc")
+        elif (x == 21):
+            column_names.append("rootms")
+        elif (x > 21 and x < 151):
+            column_names.append("Mel Spectogram")
+        else:
+            column_names.append("Spectral Contrast")
+
+    df.columns = column_names
     return df
 
 #train decision tree 
@@ -55,15 +71,18 @@ def train_random_forest(frames):
     y = frames.iloc[: , 157]
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-    Emotion_rf = RandomForestClassifier()
-    Emotion_rf_model = Emotion_rf.fit(X_train, y_train)
-    Emotion_rf_pred = Emotion_rf_model.predict(X_test)
-    print(classification_report(y_test, Emotion_rf_pred, target_names=['Whispering', 'Talking', 'Not Speaking']))
+    Sound_rf = RandomForestClassifier()
+    Sound_rf_model = Sound_rf.fit(X_train, y_train)
+    importance_index = np.argmax(Sound_rf.feature_importances_)
+    important_feature = Sound_rf.feature_names_in_[importance_index]
+    Sound_rf_pred = Sound_rf_model.predict(X_test)
+    print(classification_report(y_test, Sound_rf_pred, target_names=['Whispering', 'Talking', 'Not Speaking']))
     # Evaluate on test set
-    acc = Emotion_rf_model.score(X_test, y_test)
-    Emotion_rf_cm = confusion_matrix(y_test, Emotion_rf_pred)
-    print(Emotion_rf_cm)
-    return Emotion_rf_model, Emotion_rf_cm, acc
+    acc = Sound_rf_model.score(X_test, y_test)
+    Sound_rf_cm = confusion_matrix(y_test, Sound_rf_pred)
+    print(Sound_rf_cm)
+    print("Most Important Feature: " + important_feature)
+    return Sound_rf_model, Sound_rf_cm, acc
 
 
 # code to call it 
@@ -73,24 +92,18 @@ for filename in filenames:
    sound = filename.split('\\')[1]
    data, sample_rate = librosa.load(filename)
    # show the graph
-   # figure out how to get plots to be the same scale 
-   #fig = plt.figure(figsize=(10, 0.5))
-   #ax1 = fig.subplots() 
    y_axis_limits = [-0.5, 0.5]
-   plt.figure(figsize=(10, 4))
+   # code to display the visuals 
 
-   librosa.display.waveshow(data, sr=sample_rate, color="blue")
+    #plt.figure(figsize=(10, 4))
+    #librosa.display.waveshow(data, sr=sample_rate, color="blue")
+    #plt.ylim(y_axis_limits)
 
-   plt.ylim(y_axis_limits)
-   # add labels 
    feature_df = extract_features(data)
    sound_df = pd.DataFrame([sound])
    combined_df = pd.concat([feature_df, sound_df], axis = 1)
    frames = pd.concat([combined_df, frames])
 
-# 158 because i added another feature 
-col_names = [f'feat_{i}' for i in range (157)] + ['label']
-frames.columns = col_names
 Sound_rf_model, sound_rf_cm, acc = train_random_forest(frames)
 display = ConfusionMatrixDisplay(sound_rf_cm)
 display.plot()
