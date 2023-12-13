@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn import utils
 #import librosa.display
+import pydotplus
+from IPython.display import Image 
 
 from sklearn import tree, metrics
 from sklearn.model_selection import train_test_split, cross_val_score
@@ -82,6 +84,11 @@ def train_random_forest(frames):
     Sound_rf_cm = confusion_matrix(y_test, Sound_rf_pred)
     print(Sound_rf_cm)
     print("Most Important Feature: " + important_feature)
+    #access single decision tree 
+    myTree = Sound_rf.estimators_[1]
+    fig = plt.figure(figsize=(25, 20))
+    _ = tree.plot_tree(myTree, feature_names=X.columns, class_names=['Whispering', 'Talking', 'Not Speaking'], filled=True)
+    
     return Sound_rf_model, Sound_rf_cm, acc
 
 
